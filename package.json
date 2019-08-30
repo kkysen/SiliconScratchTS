@@ -14,11 +14,12 @@
     "url": "https://github.com/kkysen/SiliconScratchTS/issues"
   },
   "devDependencies": {
+    "typescript": "^3.6.2",
     "@types/node": "^12.7.2",
-    "@types/fs-extra": "^8.0.0",
-    "typescript": "^3.6.2"
+    "@types/fs-extra": "^8.0.0"
   },
   "dependencies": {
+    "ajv": "^6.10.2",
     "fs-extra": "^8.1.0",
     "ts-node": "^8.3.0"
   },
