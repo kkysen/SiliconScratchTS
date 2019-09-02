@@ -35,7 +35,9 @@ export namespace sb3 {
     
     export type NumPrimitive = [4 | 5 | 6 | 7 | 8, string | number];
     
-    export type ColorPrimitive = [9, string];
+    export type Color = string;
+    
+    export type ColorPrimitive = [9, Color];
     
     export type TextPrimitive = [10, string | number];
     
@@ -49,16 +51,23 @@ export namespace sb3 {
     
     export type InputPrimitive = NumPrimitive | ColorPrimitive | TextPrimitive | BroadcastPrimitive | TopLevelPrimitive;
     
+    export type OpCode = string;
+    
+    export type Shadow = 1 | 2 | 3;
+    
+    export interface Input extends Array<number | string | null | InputPrimitive> {
+        0: Shadow;
+    }
+    
+    export type Field = unknown;
+    
     export interface Block {
-		opcode: string;
+		opcode: OpCode;
 		next: string | null;
 		parent: string | null;
 		comment?: string;
-		inputs: Record<string, {
-            0: 1 | 2 | 3;
-            [index: number]: number | string | null | InputPrimitive;
-        }>;
-		fields: Record<string, unknown>;
+		inputs: Record<string, Input>;
+		fields: Record<string, Field>;
 		shadow: boolean;
 		topLevel: boolean;
         x: number;
@@ -72,6 +81,8 @@ export namespace sb3 {
             hasnext: BoolOrOptBoolString;
         };
     }
+    
+    export type Blocks = Record<string, Block | TopLevelPrimitive>;
     
     export interface Comment {
         blockId: string | null;

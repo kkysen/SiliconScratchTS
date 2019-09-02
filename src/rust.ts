@@ -1,3 +1,4 @@
+import {mapFields, mapFieldsIndexed} from "./mapFields";
 import {sb3} from "./sb3";
 
 export namespace rust {
@@ -127,19 +128,114 @@ export namespace rust {
         Motion, Look, Sound, Event, Control, Sensing, Operator, Variable, Block,
     }
     
-    interface OpCode {
-        category: BlockCategory;
-        op_code: CategoryOpCode;
+    enum MotionOpCode {
+        
     }
+    
+    enum LookOpCode {
+        
+    }
+    
+    enum SoundOpCode {
+        
+    }
+    
+    enum EventOpCode {
+        
+    }
+    
+    enum ControlOpCode {
+        
+    }
+    
+    enum SensingOpCode {
+        
+    }
+    
+    enum OperatorOpCode {
+        
+    }
+    
+    enum VariableOpCode {
+        
+    }
+    
+    enum BlockOpCode {
+        
+    }
+    
+    interface _MotionOpCode {
+        category: BlockCategory.Motion;
+        op_code: MotionOpCode;
+    }
+    
+    interface _LookOpCode {
+        category: BlockCategory.Look;
+        op_code: LookOpCode;
+    }
+    
+    interface _SoundOpCode {
+        category: BlockCategory.Sound;
+        op_code: SoundOpCode;
+    }
+    
+    interface _EventOpCode {
+        category: BlockCategory.Event;
+        op_code: EventOpCode;
+    }
+    
+    interface _ControlOpCode {
+        category: BlockCategory.Control;
+        op_code: ControlOpCode;
+    }
+    
+    interface _SensingOpCode {
+        category: BlockCategory.Sensing;
+        op_code: SensingOpCode;
+    }
+    
+    interface _OperatorOpCode {
+        category: BlockCategory.Operator;
+        op_code: OperatorOpCode;
+    }
+    
+    interface _VariableOpCode {
+        category: BlockCategory.Variable;
+        op_code: VariableOpCode;
+    }
+    
+    interface _BlockOpCode {
+        category: BlockCategory.Block;
+        op_code: BlockOpCode;
+    }
+    
+    type OpCode = _MotionOpCode | _LookOpCode | _SoundOpCode | _EventOpCode | _ControlOpCode | _SensingOpCode
+        | _OperatorOpCode | _VariableOpCode | _BlockOpCode;
+    
+    const OpCode = {
+        of(opCode: sb3.OpCode): OpCode {
+            // TODO
+        },
+    } as const;
     
     interface NumPrimitive {
         kind: "Num";
         value: number | string;
     }
     
+    interface Color {
+        // TODO
+    }
+    
+    const Color = {
+        of(color: sb3.Color): Color {
+            // TODO
+        },
+    } as const;
+    
     interface ColorPrimitive {
         kind: "Color";
-        // TODO
+        value: Color;
     }
     
     interface TextPrimitive {
@@ -147,8 +243,11 @@ export namespace rust {
         value: string;
     }
     
+    type VariableType = "Scalar" | "List" | "Broadcast";
+    
     interface VariablePrimitive {
         kind: "Variable";
+        type: VariableType;
         name: string;
         id: string;
         position: Vec2;
@@ -156,18 +255,111 @@ export namespace rust {
     
     type Primitive = NumPrimitive | ColorPrimitive | TextPrimitive | VariablePrimitive;
     
+    const Primitive = {
+        of(primitive: sb3.InputPrimitive): Primitive {
+            const discriminant = primitive[0];
+            switch (discriminant) {
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                // @ts-ignore
+                case 8: {
+                    const [_, value] = primitive as sb3.NumPrimitive;
+                    return {kind: "Num", value};
+                }
+                case 9: {
+                    const [_, value] = primitive as sb3.ColorPrimitive;
+                    return {kind: "Color", value: Color.of(value)};
+                }
+                case 10: {
+                    const [_, value] = primitive as sb3.TextPrimitive;
+                    if (typeof value !== "string") {
+                        throw new TypeError(`value \`${value}\` of TextPrimitive \`${primitive}\``);
+                    }
+                    return {kind: "Text", value};
+                }
+                case 11:
+                case 12:
+                case 13: {
+                    const [_, name, id, x, y] = primitive as sb3.BroadcastPrimitive | sb3.VariablePrimitive | sb3.ListPrimitive;
+                    const types: Record<11 | 12 | 13, VariableType> = {
+                        11: "Broadcast",
+                        12: "Scalar",
+                        13: "List",
+                    };
+                    if ((!x && x !== 0) || (!y && y !== 0)) {
+                        throw new Error(`[x, y] \`[${x}, ${y}]\` must both be defined in ${{
+                            11: "Broadcast",
+                            12: "Variable",
+                            13: "List",
+                        }[discriminant]}Primitive \`${primitive}\``);
+                    }
+                    return {
+                        kind: "Variable",
+                        type: types[discriminant],
+                        name,
+                        id,
+                        position: {x, y},
+                    };
+                }
+                default:
+                    throw new Error(`${discriminant} is not a valid InputPrimitive discriminant`);
+            }
+        }
+    } as const;
+    
     enum Shadow {
         UnObscured, None, Obscured,
     }
+    
+    const Shadows = {
+        of(shadow: sb3.Shadow): Shadow {
+            return (Shadow as unknown as Record<number, Shadow>)[shadow - 1];
+        },
+    } as const;
     
     interface Input {
         shadow: Shadow;
         args: Primitive[];
     }
     
+    const Input = {
+        of(input: sb3.Input): Input {
+            const [shadow, ...args] = input;
+            return {
+                shadow: Shadows.of(shadow),
+                args: args.map((arg, i): Primitive => {
+                    const cantBe = (type: string) => {
+                        return new TypeError(`argument ${i} of ${args} can't be ${type}`);
+                    };
+                    switch (typeof arg) {
+                        case "number":
+                            return {kind: "Num", value: arg};
+                        case "string":
+                            return {kind: "Text", value: arg};
+                        case "object":
+                            if (arg === null) {
+                                throw cantBe("null");
+                            }
+                            return Primitive.of(arg);
+                        default:
+                            throw cantBe(typeof arg);
+                    }
+                }),
+            };
+        }
+    } as const;
+    
     interface Field {
         // TODO
     }
+    
+    const Field = {
+        of(field: sb3.Field): Field {
+            // TODO
+        },
+    } as const;
     
     interface Block {
         op_code: OpCode;
@@ -183,7 +375,7 @@ export namespace rust {
     }
     
     const Block = {
-        of(block: sb3.Block): Block {
+        of(block: sb3.Block, getIndex: (block: string | null) => Index): Block {
             const {
                 opcode,
                 next,
@@ -198,12 +390,36 @@ export namespace rust {
                 mutation,
             } = block;
             if (mutation) {
-                throw new Error(`mutations not supported: ${mutation}`);
+                throw new Error(`mutations not supported in Block: ${mutation}`);
             }
             return {
                 op_code: OpCode.of(opcode),
-                next
-            }
+                next: getIndex(next),
+                parent: getIndex(parent),
+                comment,
+                inputs: mapFields(inputs, Input.of),
+                fields: mapFields(fields, Field.of),
+                shadow,
+                top_level: topLevel,
+                position: {x, y},
+            };
+        },
+    } as const;
+    
+    const Blocks = {
+        of(blocks: sb3.Blocks): readonly Block[] {
+            type IndexedBlocks = Record<string, sb3.Block & {i: number}>;
+            const indexedBlocks: IndexedBlocks = mapFieldsIndexed(blocks, (block, i) => {
+                if (Array.isArray(block)) {
+                    throw new Error(`TopLevelPrimitive \`${block}\` is not supported`);
+                }
+                return {...block, i};
+            });
+            return Object.values(indexedBlocks)
+                .map(block => Block.of(block, key => {
+                    const block = key && indexedBlocks[key];
+                    return block ? block.i : -1;
+                }));
         }
     } as const;
     
@@ -237,7 +453,7 @@ export namespace rust {
     } as const;
     
     interface Target {
-        current_costume: Costume;
+        current_costume: Index;
         blocks: Block[];
         variables: Variable[];
         lists: List[];
@@ -250,7 +466,28 @@ export namespace rust {
     
     const Target = {
         of(target: sb3.Target): Target {
-        
+            const {
+                currentCostume,
+                blocks,
+                variables,
+                lists,
+                broadcasts,
+                comments,
+                costumes,
+                sounds,
+                volume,
+            } = target;
+            return {
+                current_costume: currentCostume,
+                blocks: [],
+                variables: [],
+                lists: [],
+                broadcasts: [],
+                comments: [],
+                costumes: costumes.map(Costume.of),
+                sounds: sounds.map(Sound.of),
+                volume,
+            };
         },
     } as const;
     
@@ -405,7 +642,7 @@ export namespace rust {
         of({semver, vm, agent}: sb3.Meta): Meta {
             return {
                 version: SemVer.of(semver),
-                vm: SemVer.of(semver),
+                vm: SemVer.of(vm),
                 user_agent: agent,
             };
         },
@@ -415,5 +652,14 @@ export namespace rust {
         targets: Targets;
         meta: Meta;
     }
+    
+    export const Project = {
+        of({targets, meta}: sb3.Project): Project {
+            return {
+                targets: Targets.of(targets),
+                meta: Meta.of(meta),
+            };
+        },
+    } as const;
     
 }
