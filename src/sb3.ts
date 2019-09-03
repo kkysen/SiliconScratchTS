@@ -90,6 +90,8 @@ export namespace sb3 {
         minimized: boolean;
         x: number | null;
         y: number | null;
+        width: number;
+        height: number;
     }
     
     export interface Target {

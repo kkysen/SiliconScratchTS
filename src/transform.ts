@@ -5,6 +5,6 @@ export function transformProject(project: sb3.Project): rust.Project {
     return rust.Project.of(project);
 }
 
-export function transformSprite(sprite: sb3.Sprite) {
-
+export function transformSprite(sprite: sb3.Sprite): rust.Sprite {
+    return rust.Sprite.of(sprite);
 }

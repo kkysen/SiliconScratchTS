@@ -10,11 +10,20 @@ export namespace rust {
         y: number;
     }
     
-    type AssetId = string; // compression easier on Rust side
+    function hexToRaw(hex: string): string {
+        let s = "";
+        for (let i = 0; i < hex.length; i += 2) {
+            const c = parseInt(`0x${hex.slice(i, i + 2)}`);
+            s += String.fromCharCode(c);
+        }
+        return s;
+    }
+    
+    type AssetId = string;
     
     const AssetId = {
         of(assetId: sb3.AssetId): AssetId {
-            return assetId;
+            return hexToRaw(assetId);
         },
     } as const;
     
@@ -124,112 +133,242 @@ export namespace rust {
         },
     } as const;
     
-    enum BlockCategory {
-        Motion, Look, Sound, Event, Control, Sensing, Operator, Variable, Block,
-    }
+    namespace opCode {
     
-    enum MotionOpCode {
+        enum Kind {
+            Motion, Look, Sound, Event, Control, Sensing, Operator, Data, Block,
+        }
+    
+        const Kinds = {
+        
+            map: {
+                motion: Kind.Motion,
+                looks: Kind.Look,
+                sound: Kind.Sound,
+                event: Kind.Event,
+                control: Kind.Control,
+                sensing: Kind.Sensing,
+                operator: Kind.Operator,
+                data: Kind.Data,
+                procedures: Kind.Block,
+            } as const,
+        
+            of(sb3Kind: string): Kind {
+                const kind = Kinds.map[sb3Kind as keyof typeof Kinds.map];
+                // kind could be a 0 enum, so could be falsy
+                if (kind === undefined) {
+                    throw new Error(`invalid OpCode kind: ${kind}`);
+                }
+                return kind;
+            },
+        
+        } as const;
+    
+        enum Motion {
+        
+        }
+    
+        const _Motion = {
+            of(opCode: string): Motion {
+                switch (opCode) {
+                
+                }
+            },
+        } as const;
+    
+        enum Look {
+        
+        }
+    
+        const _Look = {
+            of(opCode: string): Look {
+                switch (opCode) {
+                
+                }
+            },
+        } as const;
+    
+        enum Sound {
+        
+        }
+    
+        const _Sound = {
+            of(opCode: string): Sound {
+                switch (opCode) {
+                
+                }
+            },
+        } as const;
+    
+        enum Event {
+        
+        }
+    
+        const _Event = {
+            of(opCode: string): Event {
+                switch (opCode) {
+                
+                }
+            },
+        } as const;
+    
+        enum Control {
+        
+        }
+    
+        const _Control = {
+            of(opCode: string): Control {
+                switch (opCode) {
+                
+                }
+            },
+        } as const;
+    
+        enum Sensing {
+        
+        }
+    
+        const _Sensing = {
+            of(opCode: string): Sensing {
+                switch (opCode) {
+                
+                }
+            },
+        } as const;
+    
+        enum Operator {
+        
+        }
+    
+        const _Operator = {
+            of(opCode: string): Operator {
+                switch (opCode) {
+                
+                }
+            },
+        } as const;
+    
+        enum Data {
+        
+        }
+    
+        const _Data = {
+            of(opCode: string): Data {
+                switch (opCode) {
+                
+                }
+            },
+        } as const;
+    
+        enum Block {
+        
+        }
+    
+        const _Block = {
+            of(opCode: string): Block {
+                switch (opCode) {
+                
+                }
+            },
+        } as const;
+    
+        interface _Motion {
+            kind: Kind.Motion;
+            op_code: Motion;
+        }
+    
+        interface _Look {
+            kind: Kind.Look;
+            op_code: Look;
+        }
+    
+        interface _Sound {
+            kind: Kind.Sound;
+            op_code: Sound;
+        }
+    
+        interface _Event {
+            kind: Kind.Event;
+            op_code: Event;
+        }
+    
+        interface _Control {
+            kind: Kind.Control;
+            op_code: Control;
+        }
+    
+        interface _Sensing {
+            kind: Kind.Sensing;
+            op_code: Sensing;
+        }
+    
+        interface _Operator {
+            kind: Kind.Operator;
+            op_code: Operator;
+        }
+    
+        interface _Data {
+            kind: Kind.Data;
+            op_code: Data;
+        }
+    
+        interface _Block {
+            kind: Kind.Block;
+            op_code: Block;
+        }
+    
+        export type OpCode = _Motion | _Look | _Sound | _Event | _Control | _Sensing
+            | _Operator | _Data | _Block;
+    
+        const _op: OpCode = {} as any;
+    
+        export const OpCode = {
+        
+            of(fullOpCode: sb3.OpCode): OpCode {
+                const i = fullOpCode.indexOf("_");
+                if (i === -1) {
+                    throw new Error(`invalid OpCode: ${fullOpCode}`);
+                }
+                const kind = Kinds.of(fullOpCode.slice(0, i));
+                const opCode = fullOpCode.slice(i);
+                switch (kind) {
+                    case Kind.Motion:
+                        return {kind, op_code: _Motion.of(opCode)};
+                    case Kind.Look:
+                        return {kind, op_code: _Look.of(opCode)};
+                    case Kind.Sound:
+                        return {kind, op_code: _Sound.of(opCode)};
+                    case Kind.Event:
+                        return {kind, op_code: _Event.of(opCode)};
+                    case Kind.Control:
+                        return {kind, op_code: _Control.of(opCode)};
+                    case Kind.Sensing:
+                        return {kind, op_code: _Sensing.of(opCode)};
+                    case Kind.Operator:
+                        return {kind, op_code: _Operator.of(opCode)};
+                    case Kind.Data:
+                        return {kind, op_code: _Data.of(opCode)};
+                    case Kind.Block:
+                        return {kind, op_code: _Block.of(opCode)};
+                }
+            },
+        
+        } as const;
         
     }
     
-    enum LookOpCode {
-        
-    }
-    
-    enum SoundOpCode {
-        
-    }
-    
-    enum EventOpCode {
-        
-    }
-    
-    enum ControlOpCode {
-        
-    }
-    
-    enum SensingOpCode {
-        
-    }
-    
-    enum OperatorOpCode {
-        
-    }
-    
-    enum VariableOpCode {
-        
-    }
-    
-    enum BlockOpCode {
-        
-    }
-    
-    interface _MotionOpCode {
-        category: BlockCategory.Motion;
-        op_code: MotionOpCode;
-    }
-    
-    interface _LookOpCode {
-        category: BlockCategory.Look;
-        op_code: LookOpCode;
-    }
-    
-    interface _SoundOpCode {
-        category: BlockCategory.Sound;
-        op_code: SoundOpCode;
-    }
-    
-    interface _EventOpCode {
-        category: BlockCategory.Event;
-        op_code: EventOpCode;
-    }
-    
-    interface _ControlOpCode {
-        category: BlockCategory.Control;
-        op_code: ControlOpCode;
-    }
-    
-    interface _SensingOpCode {
-        category: BlockCategory.Sensing;
-        op_code: SensingOpCode;
-    }
-    
-    interface _OperatorOpCode {
-        category: BlockCategory.Operator;
-        op_code: OperatorOpCode;
-    }
-    
-    interface _VariableOpCode {
-        category: BlockCategory.Variable;
-        op_code: VariableOpCode;
-    }
-    
-    interface _BlockOpCode {
-        category: BlockCategory.Block;
-        op_code: BlockOpCode;
-    }
-    
-    type OpCode = _MotionOpCode | _LookOpCode | _SoundOpCode | _EventOpCode | _ControlOpCode | _SensingOpCode
-        | _OperatorOpCode | _VariableOpCode | _BlockOpCode;
-    
-    const OpCode = {
-        of(opCode: sb3.OpCode): OpCode {
-            // TODO
-        },
-    } as const;
+    import OpCode = opCode.OpCode;
     
     interface NumPrimitive {
         kind: "Num";
         value: number | string;
     }
     
-    interface Color {
-        // TODO
-    }
+    type Color = number; // RGB integer
     
     const Color = {
         of(color: sb3.Color): Color {
-            // TODO
+            return parseInt(`0x${color.slice(1)}`);
         },
     } as const;
     
@@ -351,13 +490,11 @@ export namespace rust {
         }
     } as const;
     
-    interface Field {
-        // TODO
-    }
+    type Field = unknown;
     
     const Field = {
         of(field: sb3.Field): Field {
-            // TODO
+            return field;
         },
     } as const;
     
@@ -375,51 +512,64 @@ export namespace rust {
     }
     
     const Block = {
-        of(block: sb3.Block, getIndex: (block: string | null) => Index): Block {
-            const {
-                opcode,
-                next,
-                parent,
-                comment,
-                inputs,
-                fields,
-                shadow,
-                topLevel,
-                x,
-                y,
-                mutation,
-            } = block;
-            if (mutation) {
-                throw new Error(`mutations not supported in Block: ${mutation}`);
-            }
-            return {
-                op_code: OpCode.of(opcode),
-                next: getIndex(next),
-                parent: getIndex(parent),
-                comment,
-                inputs: mapFields(inputs, Input.of),
-                fields: mapFields(fields, Field.of),
-                shadow,
-                top_level: topLevel,
-                position: {x, y},
+        using(getIndex: GetBlockIndex): (block: sb3.Block) => Block {
+            return block => {
+                const {
+                    opcode,
+                    next,
+                    parent,
+                    comment,
+                    inputs,
+                    fields,
+                    shadow,
+                    topLevel,
+                    x,
+                    y,
+                    mutation,
+                } = block;
+                if (mutation) {
+                    throw new Error(`mutations not supported in Block: ${mutation}`);
+                }
+                return {
+                    op_code: OpCode.of(opcode),
+                    next: getIndex(next),
+                    parent: getIndex(parent),
+                    comment,
+                    inputs: mapFields(inputs, Input.of),
+                    fields: mapFields(fields, Field.of),
+                    shadow,
+                    top_level: topLevel,
+                    position: {x, y},
+                };
             };
         },
     } as const;
     
-    const Blocks = {
-        of(blocks: sb3.Blocks): readonly Block[] {
-            type IndexedBlocks = Record<string, sb3.Block & {i: number}>;
-            const indexedBlocks: IndexedBlocks = mapFieldsIndexed(blocks, (block, i) => {
+    type Blocks = Block[];
+    
+    type GetBlockIndex = (key: string | null) => Index;
+    
+    interface IndexedBlocks {
+        blocks: sb3.Block[];
+        getIndex: GetBlockIndex;
+    }
+    
+    const IndexedBlocks = {
+        of(blocks: sb3.Blocks): IndexedBlocks {
+            type Indexed = Record<string, sb3.Block & {i: number}>;
+            const indexed: Indexed = mapFieldsIndexed(blocks, (block, i) => {
                 if (Array.isArray(block)) {
                     throw new Error(`TopLevelPrimitive \`${block}\` is not supported`);
                 }
                 return {...block, i};
             });
-            return Object.values(indexedBlocks)
-                .map(block => Block.of(block, key => {
-                    const block = key && indexedBlocks[key];
+            return {
+                blocks: Object.values(indexed),
+                getIndex(key) {
+                    const block = key && indexed[key];
                     return block ? block.i : -1;
-                }));
+                },
+            };
         }
     } as const;
     
@@ -428,27 +578,85 @@ export namespace rust {
         text: string;
         minimized: boolean;
         position: Vec2;
+        size: Vec2;
     }
     
     const Comment = {
-        of(comment: sb3.Comment): Comment {
-            const {blockId, text, minimized, x, y} = comment;
-            const xValid = (!!x || x === 0);
-            const yValid = (!!y || y === 0);
-            const xyValid = xValid && yValid;
-            if (!xyValid) {
-                if (xValid || yValid) {
-                    throw new Error(`(x, y) = (${x}, ${y}) must both be numbers or nothing`);
-                } else {
-                    throw new Error(`(x, y) = (${x}, ${y}) must exist`);
+        using(getIndex: GetBlockIndex): (comment: sb3.Comment) => Comment {
+            return comment => {
+                const {blockId, text, minimized, x, y, width, height} = comment;
+                const xValid = (!!x || x === 0);
+                const yValid = (!!y || y === 0);
+                const xyValid = xValid && yValid;
+                if (!xyValid) {
+                    if (xValid || yValid) {
+                        throw new Error(`(x, y) = (${x}, ${y}) must both be numbers or nothing`);
+                    } else {
+                        throw new Error(`(x, y) = (${x}, ${y}) must exist`);
+                    }
                 }
-            }
-            return {
-                block: blockId,
-                text,
-                minimized,
-                position: {x: x as number, y: y as number},
+                return {
+                    block: getIndex(blockId),
+                    text,
+                    minimized,
+                    position: {x: x as number, y: y as number},
+                    size: {x: width, y: height},
+                };
             };
+        },
+    } as const;
+    
+    type ScalarValue = boolean | number | string;
+    
+    interface Scalar {
+        kind: "Scalar";
+        value: ScalarValue;
+    }
+    
+    interface List {
+        kind: "List";
+        value: Value[];
+    }
+    
+    interface Broadcast {
+        kind: "Broadcast";
+        value: {name: string};
+    }
+    
+    type Value = Scalar | List | Broadcast;
+    
+    interface Variable {
+        name: string;
+        value: Value;
+        on_cloud: boolean;
+    }
+    
+    const Variable = {
+        of(variable: sb3.ScalarVariable | sb3.List | sb3.BroadcastMessage): Variable {
+            if (Array.isArray(variable)) {
+                const [name, value, on_cloud = false] = variable;
+                return {
+                    name,
+                    value: Array.isArray(value) ? {
+                        kind: "List",
+                        value: value.map(Variable.of).map(e => e.value),
+                    } : {
+                        kind: "Scalar",
+                        value,
+                    },
+                    on_cloud,
+                };
+            } else {
+                const name = variable;
+                return {
+                    name,
+                    value: {
+                        kind: "Broadcast",
+                        value: {name},
+                    },
+                    on_cloud: false,
+                };
+            }
         },
     } as const;
     
@@ -456,8 +664,6 @@ export namespace rust {
         current_costume: Index;
         blocks: Block[];
         variables: Variable[];
-        lists: List[];
-        broadcasts: Broadcast[];
         comments: Comment[];
         costumes: Costume[];
         sounds: Sound[];
@@ -477,13 +683,12 @@ export namespace rust {
                 sounds,
                 volume,
             } = target;
+            const {blocks: indexedBlocks, getIndex} = IndexedBlocks.of(blocks);
             return {
                 current_costume: currentCostume,
-                blocks: [],
-                variables: [],
-                lists: [],
-                broadcasts: [],
-                comments: [],
+                blocks: indexedBlocks.map(Block.using(getIndex)),
+                variables: [variables, lists, broadcasts].flatMap(Object.values).map(Variable.of),
+                comments: Object.values(comments).map(Comment.using(getIndex)),
                 costumes: costumes.map(Costume.of),
                 sounds: sounds.map(Sound.of),
                 volume,
@@ -548,7 +753,7 @@ export namespace rust {
         }
     } as const;
     
-    interface Sprite {
+    export interface Sprite {
         target: Target,
         name: string;
         visible: boolean;
@@ -560,7 +765,7 @@ export namespace rust {
         layer_order: number;
     }
     
-    const Sprite = {
+    export const Sprite = {
         of(sprite: sb3.Sprite): Sprite {
             const {
                 name,
