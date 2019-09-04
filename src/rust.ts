@@ -392,7 +392,12 @@ export namespace rust {
         position: Vec2;
     }
     
-    type Primitive = NumPrimitive | ColorPrimitive | TextPrimitive | VariablePrimitive;
+    interface IndexPrimitive {
+        kind: "Index";
+        value: Index;
+    }
+    
+    type Primitive = NumPrimitive | ColorPrimitive | TextPrimitive | VariablePrimitive | IndexPrimitive;
     
     const Primitive = {
         of(primitive: sb3.InputPrimitive): Primitive {
@@ -464,7 +469,7 @@ export namespace rust {
     }
     
     const Input = {
-        of(input: sb3.Input): Input {
+        using(getIndex: GetBlockIndex, input: sb3.Input): Input {
             const [shadow, ...args] = input;
             return {
                 shadow: Shadows.of(shadow),
@@ -476,7 +481,7 @@ export namespace rust {
                         case "number":
                             return {kind: "Num", value: arg};
                         case "string":
-                            return {kind: "Text", value: arg};
+                            return {kind: "Index", value: getIndex(arg)};
                         case "object":
                             if (arg === null) {
                                 throw cantBe("null");
@@ -485,8 +490,6 @@ export namespace rust {
                         default:
                             throw cantBe(typeof arg);
                     }
-                }).map(primitive => {
-                    primitive.kind
                 }),
             };
         }
