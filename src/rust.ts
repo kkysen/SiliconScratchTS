@@ -134,13 +134,13 @@ export namespace rust {
     } as const;
     
     namespace opCode {
-    
+        
         enum Kind {
             Motion, Look, Sound, Event, Control, Sensing, Operator, Data, Block,
         }
-    
-        const Kinds = {
         
+        const Kinds = {
+            
             map: {
                 motion: Kind.Motion,
                 looks: Kind.Look,
@@ -152,7 +152,7 @@ export namespace rust {
                 data: Kind.Data,
                 procedures: Kind.Block,
             } as const,
-        
+            
             of(sb3Kind: string): Kind {
                 const kind = Kinds.map[sb3Kind as keyof typeof Kinds.map];
                 // kind could be a 0 enum, so could be falsy
@@ -161,13 +161,13 @@ export namespace rust {
                 }
                 return kind;
             },
-        
+            
         } as const;
-    
+        
         enum Motion {
         
         }
-    
+        
         const _Motion = {
             of(opCode: string): Motion {
                 switch (opCode) {
@@ -175,11 +175,11 @@ export namespace rust {
                 }
             },
         } as const;
-    
+        
         enum Look {
         
         }
-    
+        
         const _Look = {
             of(opCode: string): Look {
                 switch (opCode) {
@@ -187,11 +187,11 @@ export namespace rust {
                 }
             },
         } as const;
-    
+        
         enum Sound {
         
         }
-    
+        
         const _Sound = {
             of(opCode: string): Sound {
                 switch (opCode) {
@@ -199,11 +199,11 @@ export namespace rust {
                 }
             },
         } as const;
-    
+        
         enum Event {
         
         }
-    
+        
         const _Event = {
             of(opCode: string): Event {
                 switch (opCode) {
@@ -211,11 +211,11 @@ export namespace rust {
                 }
             },
         } as const;
-    
+        
         enum Control {
         
         }
-    
+        
         const _Control = {
             of(opCode: string): Control {
                 switch (opCode) {
@@ -223,11 +223,11 @@ export namespace rust {
                 }
             },
         } as const;
-    
+        
         enum Sensing {
         
         }
-    
+        
         const _Sensing = {
             of(opCode: string): Sensing {
                 switch (opCode) {
@@ -235,11 +235,11 @@ export namespace rust {
                 }
             },
         } as const;
-    
+        
         enum Operator {
         
         }
-    
+        
         const _Operator = {
             of(opCode: string): Operator {
                 switch (opCode) {
@@ -247,11 +247,11 @@ export namespace rust {
                 }
             },
         } as const;
-    
+        
         enum Data {
         
         }
-    
+        
         const _Data = {
             of(opCode: string): Data {
                 switch (opCode) {
@@ -259,11 +259,11 @@ export namespace rust {
                 }
             },
         } as const;
-    
+        
         enum Block {
         
         }
-    
+        
         const _Block = {
             of(opCode: string): Block {
                 switch (opCode) {
@@ -271,59 +271,59 @@ export namespace rust {
                 }
             },
         } as const;
-    
+        
         interface _Motion {
             kind: Kind.Motion;
             op_code: Motion;
         }
-    
+        
         interface _Look {
             kind: Kind.Look;
             op_code: Look;
         }
-    
+        
         interface _Sound {
             kind: Kind.Sound;
             op_code: Sound;
         }
-    
+        
         interface _Event {
             kind: Kind.Event;
             op_code: Event;
         }
-    
+        
         interface _Control {
             kind: Kind.Control;
             op_code: Control;
         }
-    
+        
         interface _Sensing {
             kind: Kind.Sensing;
             op_code: Sensing;
         }
-    
+        
         interface _Operator {
             kind: Kind.Operator;
             op_code: Operator;
         }
-    
+        
         interface _Data {
             kind: Kind.Data;
             op_code: Data;
         }
-    
+        
         interface _Block {
             kind: Kind.Block;
             op_code: Block;
         }
-    
+        
         export type OpCode = _Motion | _Look | _Sound | _Event | _Control | _Sensing
             | _Operator | _Data | _Block;
-    
-        const _op: OpCode = {} as any;
-    
-        export const OpCode = {
         
+        const _op: OpCode = {} as any;
+        
+        export const OpCode = {
+            
             of(fullOpCode: sb3.OpCode): OpCode {
                 const i = fullOpCode.indexOf("_");
                 if (i === -1) {
@@ -352,7 +352,7 @@ export namespace rust {
                         return {kind, op_code: _Block.of(opCode)};
                 }
             },
-        
+            
         } as const;
         
     }
@@ -469,28 +469,30 @@ export namespace rust {
     }
     
     const Input = {
-        using(getIndex: GetBlockIndex, input: sb3.Input): Input {
-            const [shadow, ...args] = input;
-            return {
-                shadow: Shadows.of(shadow),
-                args: args.map((arg, i): Primitive => {
-                    const cantBe = (type: string) => {
-                        return new TypeError(`argument ${i} of ${args} can't be ${type}`);
-                    };
-                    switch (typeof arg) {
-                        case "number":
-                            return {kind: "Num", value: arg};
-                        case "string":
-                            return {kind: "Index", value: getIndex(arg)};
-                        case "object":
-                            if (arg === null) {
-                                throw cantBe("null");
-                            }
-                            return Primitive.of(arg);
-                        default:
-                            throw cantBe(typeof arg);
-                    }
-                }),
+        using(getIndex: GetBlockIndex): (input: sb3.Input) => Input {
+            return input => {
+                const [shadow, ...args] = input;
+                return {
+                    shadow: Shadows.of(shadow),
+                    args: args.map((arg, i): Primitive => {
+                        const cantBe = (type: string) => {
+                            return new TypeError(`argument ${i} of ${args} can't be ${type}`);
+                        };
+                        switch (typeof arg) {
+                            case "number":
+                                return {kind: "Num", value: arg};
+                            case "string":
+                                return {kind: "Index", value: getIndex(arg)};
+                            case "object":
+                                if (arg === null) {
+                                    throw cantBe("null");
+                                }
+                                return Primitive.of(arg);
+                            default:
+                                throw cantBe(typeof arg);
+                        }
+                    }),
+                };
             };
         }
     } as const;
@@ -540,7 +542,7 @@ export namespace rust {
                     next: getIndex(next),
                     parent: getIndex(parent),
                     comment,
-                    inputs: mapFields(inputs, Input.of),
+                    inputs: mapFields(inputs, Input.using(getIndex)),
                     fields: mapFields(fields, Field.of),
                     shadow,
                     top_level: topLevel,
