@@ -13,7 +13,7 @@ export namespace rust {
     function hexToRaw(hex: string): string {
         let s = "";
         for (let i = 0; i < hex.length; i += 2) {
-            const c = parseInt(`0x${hex.slice(i, i + 2)}`);
+            const c = parseInt(hex.slice(i, i + 2), 16);
             s += String.fromCharCode(c);
         }
         return s;
@@ -368,7 +368,7 @@ export namespace rust {
     
     const Color = {
         of(color: sb3.Color): Color {
-            return parseInt(`0x${color.slice(1)}`);
+            return parseInt(color.slice(1), 16);
         },
     } as const;
     
@@ -485,6 +485,8 @@ export namespace rust {
                         default:
                             throw cantBe(typeof arg);
                     }
+                }).map(primitive => {
+                    primitive.kind
                 }),
             };
         }
